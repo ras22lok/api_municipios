@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 
 class MunicipioController extends Controller
 {
-    public function listar(Request $request, $uf, MunicipioService $service) {
+    public function listar(Request $request, $uf, $pagina = 1, MunicipioService $service) {
         try {
-            $pagina = "";
             $qtdPorPagina = 50;
+            $dados = $service->pegar($uf, $pagina, $qtdPorPagina, $request->get('provider'));
 
-
-            $dados = $service->pegar($uf, $pagina, $qtdPorPagina);
+            unset($uf, $pagina, $qtdPorPagina, $request);
 
             return response()->json($dados, 200);
         } catch (\Exception $e) {
