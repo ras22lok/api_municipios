@@ -5,27 +5,20 @@
 
     class Provider
     {
-        public function pegar($url, $pagina, $qtdPorPagina, $provider)
-        {
+        public function pegar($url, $provider) {
             $response = Http::get($url);
             $identificador = ($provider == 'brasilapi') ? 'codigo_ibge' : 'id';
 
-            if (!$response->ok()) throw new \Exception("Erro ao acessar a api $provider");
+            if (!$response->ok()) throw new \Exception("Erro ao buscar municípios do $provider");
 
             $dados = collect($response->json());
             unset($provider, $url, $response);
 
-            return [
-                'data' => $dados->slice(($pagina - 1) * $qtdPorPagina, $qtdPorPagina)->values()->map(function ($item) use ($identificador) {
-                    return [
-                        'nome' => $item['nome'],
-                        'codigo_ibge' => $item[$identificador]
-                    ];
-                }),
-                'total' => $dados->count(),
-                'pagina' => $pagina,
-                'qtd_por_pagina' => $qtdPorPagina,
-                'qtd_de_paginas' => ceil($dados->count() / $qtdPorPagina),
-            ];
+            return $dados->map(function ($item) use ($identificador) {
+                return [
+                    'nome' => $item['nome'],
+                    'codigo' => $item[$identificador]
+                ];
+            })->toArray();
         }
     }
